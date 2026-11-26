@@ -1,0 +1,113 @@
+@baseUrl = http://localhost:8000
+
+### ====================================================================
+### PEDIDOS Y DETALLE_PEDIDO (Veggie Food Store - Catálogo Real)
+### ====================================================================
+
+### 1. Crear Pedido con Burrito Tex (id: 1, $6000) y Chilaquiles Verdes (id: 4, $15000) (201 Created)
+# Total esperado: (2 * 6000) + (1 * 15000) = 27000.0
+POST {{baseUrl}}/pedidos/
+Content-Type: application/json
+
+{
+  "detalles": [
+    {
+      "producto_id": 1,
+      "cantidad": 2
+    },
+    {
+      "producto_id": 4,
+      "cantidad": 1
+    }
+  ]
+}
+
+### 2. Listar todos los Pedidos activos (200 OK)
+GET {{baseUrl}}/pedidos/
+
+### 3. Obtener Pedido por ID con sus detalles (200 OK)
+GET {{baseUrl}}/pedidos/1
+
+### 4. Actualizar Estado de Pedido a CONFIRMADO (200 OK)
+PUT {{baseUrl}}/pedidos/1
+Content-Type: application/json
+
+{
+  "estado": "CONFIRMADO"
+}
+
+### 5. Actualizar Estado de Pedido a ENTREGADO (200 OK)
+PUT {{baseUrl}}/pedidos/1
+Content-Type: application/json
+
+{
+  "estado": "ENTREGADO"
+}
+
+### 6. Error 422: Crear Pedido sin detalles (lista vacía)
+POST {{baseUrl}}/pedidos/
+Content-Type: application/json
+
+{
+  "detalles": []
+}
+
+### 7. Error 422: Crear Pedido con producto_id repetido en detalles (RN-12)
+POST {{baseUrl}}/pedidos/
+Content-Type: application/json
+
+{
+  "detalles": [
+    {
+      "producto_id": 1,
+      "cantidad": 1
+    },
+    {
+      "producto_id": 1,
+      "cantidad": 3
+    }
+  ]
+}
+
+### 8. Error 422: Crear Pedido con cantidad menor a 1 (< 1)
+POST {{baseUrl}}/pedidos/
+Content-Type: application/json
+
+{
+  "detalles": [
+    {
+      "producto_id": 1,
+      "cantidad": 0
+    }
+  ]
+}
+
+### 9. Error 422: Actualizar Estado con valor no permitido
+PUT {{baseUrl}}/pedidos/1
+Content-Type: application/json
+
+{
+  "estado": "ESTADO_INVENTADO"
+}
+
+### 10. Error 404: Crear Pedido con producto inexistente (Demuestra Rollback con Unit of Work)
+POST {{baseUrl}}/pedidos/
+Content-Type: application/json
+
+{
+  "detalles": [
+    {
+      "producto_id": 99999,
+      "cantidad": 1
+    }
+  ]
+}
+
+### 11. Eliminar Pedido (Borrado lógico: completa deleted_at) (204 No Content)
+DELETE {{baseUrl}}/pedidos/1
+
+### 12. Error 404: Obtener Pedido eliminado lógicamente
+GET {{baseUrl}}/pedidos/1
+
+### 13. Error 404: Actualizar o Eliminar Pedido ya eliminado
+DELETE {{baseUrl}}/pedidos/1

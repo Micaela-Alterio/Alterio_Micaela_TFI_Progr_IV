@@ -1,0 +1,69 @@
+### Variables
+@baseUrl = http://localhost:8000
+
+### 1. Registro de nuevo usuario (Público, status 201)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Mariana",
+  "apellido": "Lopez",
+  "email": "mariana.lopez@example.com",
+  "celular": "1144556677",
+  "password": "Password123!"
+}
+
+### 2. Login OAuth2 (Admin) - Entrega JWT en Cookie HttpOnly
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@foodstore.com&password=Admin123!
+
+### Guardar Token Admin
+@adminToken = {{loginAdmin.response.body.access_token}}
+
+### 3. Login OAuth2 (Usuario estándar)
+# @name loginUser
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username=user@foodstore.com&password=User123!
+
+### Guardar Token User
+@userToken = {{loginUser.response.body.access_token}}
+
+### 4. Login con credenciales inválidas (status 401)
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@foodstore.com&password=ContraseniaIncorrecta
+
+### 5. Login con cuenta desactivada (status 400)
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username=desactivado@foodstore.com&password=User123!
+
+### 6. Perfil del usuario autenticado (GET /me)
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{adminToken}}
+
+### 7. Listar todos los usuarios e indicador de estado (Solo Admin - 200)
+GET {{baseUrl}}/admin/usuarios
+Authorization: Bearer {{adminToken}}
+
+### 8. Listar usuarios con token de usuario estándar (status 403 Forbidden)
+GET {{baseUrl}}/admin/usuarios
+Authorization: Bearer {{userToken}}
+
+### 9. Desactivar usuario con ID 2 (Solo Admin)
+POST {{baseUrl}}/admin/usuarios/2/desactivar
+Authorization: Bearer {{adminToken}}
+
+### 10. Activar usuario con ID 2 (Solo Admin)
+POST {{baseUrl}}/admin/usuarios/2/activar
+Authorization: Bearer {{adminToken}}
+
+### 11. Logout (Elimina cookie HttpOnly)
+POST {{baseUrl}}/api/v1/auth/logout

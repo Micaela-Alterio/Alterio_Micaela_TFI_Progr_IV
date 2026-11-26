@@ -1,0 +1,16 @@
+﻿# Entornos y dependencias
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/
+dist/
+
+# Variables de entorno sensibles
+.env
+backend/.env
+frontend/.env
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
